@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>분리수거 챌린지</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f5;
+      text-align: center;
+    }
+
+    .screen {
+      display: none;
+      padding: 20px;
+    }
+    .active {
+      display: block;
+    }
+
+    h1 {
+      margin-top: 30px;
+    }
+
+    button {
+      font-size: 16px;
+      padding: 14px;
+      margin: 6px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 45%;
+    }
+
+    .start-btn {
+      width: 90%;
+      background: #2ecc71;
+      color: white;
+      font-size: 18px;
+    }
+
+    .status {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    #itemImage {
+      width: 70%;
+      max-width: 250px;
+      margin: 20px auto;
+      display: block;
+    }
+
+    .bins {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .bin {
+      background: #ecf0f1;
+    }
+
+    .feedback {
+      margin-top: 15px;
+      font-size: 16px;
+      min-height: 40px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- 시작 화면 -->
+<div id="startScreen" class="screen active">
+  <h1>분리수거 챌린지</h1>
+  <p>30초 안에 최대한 많이 맞혀보세요</p>
+  <button class="start-btn" onclick="startGame()">게임 시작</button>
+</div>
+
+<!-- 게임 화면 -->
+<div id="gameScreen" class="screen">
+  <div class="status">
+    <div>⏱️ <span id="time">30</span>초</div>
+    <div>점수: <span id="score">0</span></div>
+  </div>
+
+  <img id="itemImage" src="" alt="쓰레기 이미지">
+  <p><strong>어디에 버려야 할까?</strong></p>
+
+  <div class="bins">
+    <button class="bin" onclick="checkAnswer('플라스틱')">플라스틱</button>
+    <button class="bin" onclick="checkAnswer('일반')">일반쓰레기</button>
+    <button class="bin" onclick="checkAnswer('종이')">종이</button>
+    <button class="bin" onclick="checkAnswer('캔')">캔</button>
+    <button class="bin" onclick="checkAnswer('비닐')">비닐</button>
+  </div>
+
+  <div class="feedback" id="feedback"></div>
+</div>
+
+<!-- 결과 화면 -->
+<div id="resultScreen" class="screen">
+  <h1>게임 종료!</h1>
+  <p>맞힌 개수: <span id="finalScore"></span></p>
+  <button class="start-btn" onclick="startGame()">다시 하기</button>
+</div>
+
+<script>
+  const items = [
+    {
+      name: "볼펜",
+      image: "images/pen.png",
+      answer: "일반",
+      desc: "여러 재질이 섞여 있어 일반쓰레기입니다."
+    },
+    {
+      name: "종이컵",
+      image: "images/cup.png",
+      answer: "일반",
+      desc: "안쪽 코팅 때문에 재활용이 어렵습니다."
+    },
+    {
+      name: "음료 캔",
+      image: "images/can.png",
+      answer: "캔",
+      desc: "내용물을 비우면 캔류로 분리배출합니다."
+    },
+    {
+      name: "비닐봉지",
+      image: "images/plastic_bag.png",
+      answer: "비닐",
+      desc: "깨끗한 비닐은 비닐류로 배출합니다."
+    }
+  ];
+
+  let time = 30;
+  let score = 0;
+  let timer;
+  let currentItem;
+
+  function startGame() {
+    time = 30;
+    score = 0;
+    document.getElementById("time").innerText = time;
+    document.getElementById("score").innerText = score;
+    document.getElementById("feedback").innerText = "";
+
+    showScreen("gameScreen");
+    nextItem();
+
+    clearInterval(timer);
+    timer = setInterval(() => {
+      time--;
+      document.getElementById("time").innerText = time;
+      if (time <= 0) {
+        endGame();
+      }
+    }, 1000);
+  }
+
+  function nextItem() {
+    currentItem = items[Math.floor(Math.random() * items.length)];
+    document.getElementById("itemImage").src = currentItem.image;
+  }
+
+  function checkAnswer(choice) {
+    if (choice === currentItem.answer) {
+      score++;
+      document.getElementById("score").innerText = score;
+      document.getElementById("feedback").innerText =
+        "✔️ 정답! " + currentItem.desc;
+    } else {
+      document.getElementById("feedback").innerText =
+        "❌ 헷갈리기 쉬워요. " + currentItem.desc;
+    }
+
+    setTimeout(() => {
+      document.getElementById("feedback").innerText = "";
+      nextItem();
+    }, 2000); // ← 설명 2초 유지
+  }
+
+  function endGame() {
+    clearInterval(timer);
+    document.getElementById("finalScore").innerText = score;
+    showScreen("resultScreen");
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+  }
+</script>
+
+</body>
+</html>
